@@ -1,8 +1,88 @@
-import React from 'react'
+import { useContext, useEffect } from 'react'
+import { userAuthorContextObj } from '../../contexts/UserAuthorContext'
+import { useUser } from '@clerk/clerk-react'
+import axios from 'axios'
 
 function Home() {
+  const { currentUser, setCurrentUser } = useContext(userAuthorContextObj)
+
+  const { isSignedIn, user, isLoaded } = useUser()
+
+  console.log("isSignedIn :", isSignedIn)
+  console.log("User :", user)
+  console.log("isLolded :", isLoaded)
+
+
+
+  async function onSelectRole(e){
+      const selectedRole=e.target.value;
+      console.log(selectedRole)
+      currentUser.role=selectedRole;
+      let res=null;
+
+      if(selectedRole==='author'){
+          res=await axios.post('http://localhost:3000/author-api/author',currentUser)
+          let {message,payload}=res.data;
+          if(message==='author'){
+            setCurrentUser({...currentUser,...payload})
+          }
+      }
+      if(selectedRole==='user'){
+        res=await axios.post('http://localhost:3000/user-api/user',currentUser)
+        let {message,payload}=res.data;
+        if(message==='user'){
+          setCurrentUser({...currentUser,...payload})
+        }
+      }
+  } 
+
+  useEffect(() => {
+    setCurrentUser({
+      ...currentUser,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.emailAddresses[0].emailAddress,
+      profileImageUrl: user?.imageUrl
+
+    })
+  }, [isLoaded])
+
   return (
-    <div>Home</div>
+    <div className='container'>
+      {
+        isSignedIn === false && <div>
+          <p className="lead">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veniam neque consequatur nemo, enim expedita alias nobis iste obcaecati, eum dolor deserunt voluptatum odio aperiam, officiis sequi voluptates molestias atque sint?</p>
+          <p className="lead">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veniam neque consequatur nemo, enim expedita alias nobis iste obcaecati, eum dolor deserunt voluptatum odio aperiam, officiis sequi voluptates molestias atque sint?</p>
+          <p className="lead">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veniam neque consequatur nemo, enim expedita alias nobis iste obcaecati, eum dolor deserunt voluptatum odio aperiam, officiis sequi voluptates molestias atque sint?</p>
+
+        </div>
+      }
+
+      {
+        isSignedIn === true &&
+        <div>
+          <div className='d-flex justify-content-evenly align-items-center bg-info p-3'>
+            <img src={user.imageUrl} width="100px" className='rounded-circle' alt="" />
+            <p className="display-6">{user.firstName}</p>
+          </div>
+          <p className="lead">Select role</p>
+          <div className='d-flex role-radio py-3 justify-content-center'>
+         
+            <div className="form-check me-4">
+              <input type="radio" name="role" id="author" value="author" className="form-check-input" onChange={onSelectRole} />
+              <label htmlFor="author" className="form-check-label">Author</label>
+            </div>
+            <div className="form-check">
+              <input type="radio" name="role" id="user" value="user" className="form-check-input" onChange={onSelectRole} />
+              <label htmlFor="user" className="form-check-label">User</label>
+            </div>
+          </div>
+        </div>
+
+
+
+      }
+    </div>
   )
 }
 
