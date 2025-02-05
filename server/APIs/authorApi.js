@@ -4,7 +4,6 @@ const expressAsyncHandler = require("express-async-handler");
 const createUserOrAuthor = require('./createUserOrAuthor');
 const Article = require("../models/articleModel")
 
-//API
 
 //create new author
 authorApp.post("/author", expressAsyncHandler(createUserOrAuthor))
@@ -24,7 +23,7 @@ authorApp.post("/article", expressAsyncHandler(async (req, res) => {
 //read all articles
 authorApp.get('/articles', expressAsyncHandler(async (req, res) => {
     //read all articles from db
-    const listOfArticles = await Article.find({isArticleActive:true});
+    const listOfArticles = await Article.find({ isArticleActive: true });
     res.status(200).send({ message: "articles", payload: listOfArticles })
 }))
 

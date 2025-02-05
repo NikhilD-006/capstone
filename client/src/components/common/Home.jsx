@@ -1,12 +1,15 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { userAuthorContextObj } from '../../contexts/UserAuthorContext'
 import { useUser } from '@clerk/clerk-react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 function Home() {
   const { currentUser, setCurrentUser } = useContext(userAuthorContextObj)
 
   const { isSignedIn, user, isLoaded } = useUser()
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   console.log("isSignedIn :", isSignedIn)
   console.log("User :", user)
@@ -14,38 +17,58 @@ function Home() {
 
 
 
-  async function onSelectRole(e){
-      const selectedRole=e.target.value;
-      console.log(selectedRole)
-      currentUser.role=selectedRole;
-      let res=null;
+  async function onSelectRole(e) {
+    //clear error property
+    setError('')
+    const selectedRole = e.target.value;
+    console.log(selectedRole)
+    currentUser.role = selectedRole;
+    let res = null;
 
-      if(selectedRole==='author'){
-          res=await axios.post('http://localhost:3000/author-api/author',currentUser)
-          let {message,payload}=res.data;
-          if(message==='author'){
-            setCurrentUser({...currentUser,...payload})
-          }
+    if (selectedRole === 'author') {
+      res = await axios.post('http://localhost:3000/author-api/author', currentUser)
+      let { message, payload } = res.data;
+      if (message === 'author') {
+        setCurrentUser({ ...currentUser, ...payload })
+      } else {
+        setError(message);
       }
-      if(selectedRole==='user'){
-        res=await axios.post('http://localhost:3000/user-api/user',currentUser)
-        let {message,payload}=res.data;
-        if(message==='user'){
-          setCurrentUser({...currentUser,...payload})
-        }
+    }
+    if (selectedRole === 'user') {
+      res = await axios.post('http://localhost:3000/user-api/user', currentUser)
+      let { message, payload } = res.data;
+      if (message === 'user') {
+        setCurrentUser({ ...currentUser, ...payload })
+      } else {
+        setError(message);
       }
-  } 
+    }
+  }
+
+  console.log("crrent user ", currentUser)
+  useEffect(() => {
+    if (isSignedIn === true) {
+      setCurrentUser({
+        ...currentUser,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.emailAddresses[0].emailAddress,
+        profileImageUrl: user.imageUrl,
+      });
+    }
+  }, [isLoaded])
+
+
 
   useEffect(() => {
-    setCurrentUser({
-      ...currentUser,
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      email: user?.emailAddresses[0].emailAddress,
-      profileImageUrl: user?.imageUrl
-
-    })
-  }, [isLoaded])
+    if (currentUser?.role === "user" && error.length === 0) {
+      navigate(`/user-profile/${currentUser.email}`);
+    }
+    if (currentUser?.role === "author" && error.length === 0) {
+      console.log("first")
+      navigate(`/author-profile/${currentUser.email}`);
+    }
+  }, [currentUser?.role]);
 
   return (
     <div className='container'>
@@ -64,10 +87,19 @@ function Home() {
           <div className='d-flex justify-content-evenly align-items-center bg-info p-3'>
             <img src={user.imageUrl} width="100px" className='rounded-circle' alt="" />
             <p className="display-6">{user.firstName}</p>
+            <p className="lead">{user.emailAddresses[0].emailAddress}</p>
           </div>
           <p className="lead">Select role</p>
+          {error.length !== 0 && (
+            <p
+              className="text-danger fs-5"
+              style={{ fontFamily: "sans-serif" }}
+            >
+              {error}
+            </p>
+          )}
           <div className='d-flex role-radio py-3 justify-content-center'>
-         
+
             <div className="form-check me-4">
               <input type="radio" name="role" id="author" value="author" className="form-check-input" onChange={onSelectRole} />
               <label htmlFor="author" className="form-check-label">Author</label>

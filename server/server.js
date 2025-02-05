@@ -24,3 +24,11 @@ app.use(exp.json())
 app.use('/user-api',userApp)
 app.use("/author-api",authorApp)
 app.use('/admin-api',adminApp)
+
+
+//error handler
+app.use((err,req,res,next)=>{
+    console.log("err object in express error handler :",err)
+    
+    res.send({message:err.message})
+})
