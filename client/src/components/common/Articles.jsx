@@ -30,7 +30,7 @@ function Articles() {
     getArticles()
   }, [])
 
- // console.log(articles)
+  console.log(articles)
 
   return (
     <div className='container'>
