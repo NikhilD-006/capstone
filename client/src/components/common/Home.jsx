@@ -21,47 +21,37 @@ function Home() {
     //clear error property
     setError('')
     const selectedRole = e.target.value;
-    // console.log(selectedRole)
-     currentUser.role = selectedRole;
-   // setCurrentUser({ ...currentUser, role: selectedRole })
+    currentUser.role = selectedRole;
     let res = null;
-    try{
-    if (selectedRole === 'author') {
-      res = await axios.post('http://localhost:3000/author-api/author', currentUser)
-      let { message, payload } = res.data;
-      console.log(message,payload)
-      if (message === 'author') {
-        setCurrentUser({ ...currentUser, ...payload })
-       // setError(null)
-      } else {
-
-        setError(message);
+    try {
+      if (selectedRole === 'author') {
+        res = await axios.post('http://localhost:3000/author-api/author', currentUser)
+        let { message, payload } = res.data;
+        // console.log(message, payload)
+        if (message === 'author') {
+          setCurrentUser({ ...currentUser, ...payload })
+          // setError(null)
+        } else {
+          setError(message);
+        }
       }
-    }
-    if (selectedRole === 'user') {
-      res = await axios.post('http://localhost:3000/user-api/user', currentUser)
-      let { message, payload } = res.data;
-      console.log(message)
-      if (message === 'user') {
-        setCurrentUser({ ...currentUser, ...payload })
-       // setError(null)
-      } else {
-
-        setError(message);
+      if (selectedRole === 'user') {
+        res = await axios.post('http://localhost:3000/user-api/user', currentUser)
+        // let { message, payload } = res.data;
+        console.log(message)
+        if (message === 'user') {
+          setCurrentUser({ ...currentUser, ...payload })
+        } else {
+          setError(message);
+        }
       }
-    
+    } catch (err) {
+      setError(err.message);
     }
-  }catch (err) {
-    // console.log(JSON.stringify(err));
-    console.log("err is ", err);
-    setError(err.message);
   }
-}
-  console.log("error",error)
-  console.log(currentUser)
+
 
   useEffect(() => {
-    console.log("cu in effect-1", currentUser)
     if (isSignedIn === true) {
       setCurrentUser({
         ...currentUser,
@@ -77,8 +67,6 @@ function Home() {
 
   useEffect(() => {
 
-    console.log("cu in effect-2", currentUser)
-    console.log("error in effect-2", error)
     if (currentUser?.role === "user" && error.length === 0) {
       navigate(`/user-profile/${currentUser.email}`);
     }

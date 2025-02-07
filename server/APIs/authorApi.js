@@ -30,11 +30,11 @@ authorApp.get('/articles',requireAuth({signInUrl:"unauthorized"}) ,expressAsyncH
 }))
 
 authorApp.get('/unauthorized',(req,res)=>{
-    res.send({message:"Unauthorized request...plz login "})
+    res.send({message:"Unauthorized request"})
 })
 
 //modify an article by article id
-authorApp.put('/article/:articleId', expressAsyncHandler(async (req, res) => {
+authorApp.put('/article/:articleId', requireAuth({signInUrl:"unauthorized"}),expressAsyncHandler(async (req, res) => {
 
     //get modified article
     const modifiedArticle = req.body;
@@ -48,7 +48,7 @@ authorApp.put('/article/:articleId', expressAsyncHandler(async (req, res) => {
 
 
 //delete(soft delete) an article by article id
-authorApp.put('/articles/:articleId', expressAsyncHandler(async (req, res) => {
+authorApp.put('/articles/:articleId',expressAsyncHandler(async (req, res) => {
 
     //get modified article
     const modifiedArticle = req.body;
@@ -57,7 +57,7 @@ authorApp.put('/articles/:articleId', expressAsyncHandler(async (req, res) => {
         { ...modifiedArticle },
         { returnOriginal: false })
     //send res
-    res.status(200).send({ message: "article deleted", payload: latestArticle })
+    res.status(200).send({ message: "article deleted or restored", payload: latestArticle })
 }))
 
 
