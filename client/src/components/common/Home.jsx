@@ -11,9 +11,9 @@ function Home() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  console.log("isSignedIn :", isSignedIn)
-  console.log("User :", user)
-  console.log("isLolded :", isLoaded)
+  // console.log("isSignedIn :", isSignedIn)
+  // console.log("User :", user)
+  // console.log("isLolded :", isLoaded)
 
 
 
@@ -21,13 +21,15 @@ function Home() {
     //clear error property
     setError('')
     const selectedRole = e.target.value;
-    console.log(selectedRole)
-    currentUser.role = selectedRole;
+   // console.log(selectedRole)
+   // currentUser.role = selectedRole;
+   setCurrentUser({...currentUser,role:selectedRole})
     let res = null;
 
     if (selectedRole === 'author') {
       res = await axios.post('http://localhost:3000/author-api/author', currentUser)
       let { message, payload } = res.data;
+      //console.log(message)
       if (message === 'author') {
         setCurrentUser({ ...currentUser, ...payload })
       } else {
@@ -37,6 +39,7 @@ function Home() {
     if (selectedRole === 'user') {
       res = await axios.post('http://localhost:3000/user-api/user', currentUser)
       let { message, payload } = res.data;
+     // console.log(message)
       if (message === 'user') {
         setCurrentUser({ ...currentUser, ...payload })
       } else {
@@ -44,9 +47,10 @@ function Home() {
       }
     }
   }
-
-  console.log("crrent user ", currentUser)
+  console.log(error)
+ 
   useEffect(() => {
+   
     if (isSignedIn === true) {
       setCurrentUser({
         ...currentUser,
@@ -61,6 +65,8 @@ function Home() {
 
 
   useEffect(() => {
+   
+
     if (currentUser?.role === "user" && error.length === 0) {
       navigate(`/user-profile/${currentUser.email}`);
     }
@@ -69,6 +75,8 @@ function Home() {
       navigate(`/author-profile/${currentUser.email}`);
     }
   }, [currentUser?.role]);
+
+ 
 
   return (
     <div className='container'>
