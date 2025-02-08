@@ -74,12 +74,19 @@ const browserRouterObj = createBrowserRouter([
       }
     ]
   }
-])
+], {
+  future: {
+    v7_relativeSplatPath: true,
+
+  },
+})
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <UserAuthorContext>
-      <RouterProvider router={browserRouterObj} />
+      <RouterProvider router={browserRouterObj} future={{
+        v7_startTransition: true,
+      }} />
     </UserAuthorContext>
 
   </StrictMode>,

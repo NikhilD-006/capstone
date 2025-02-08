@@ -12,7 +12,7 @@ function Home() {
   const navigate = useNavigate();
 
   // console.log("isSignedIn :", isSignedIn)
-  // console.log("User :", user)
+   console.log("User :", user)
   // console.log("isLolded :", isLoaded)
 
 
@@ -30,17 +30,22 @@ function Home() {
         // console.log(message, payload)
         if (message === 'author') {
           setCurrentUser({ ...currentUser, ...payload })
+          //save user to localstorage
+          localStorage.setItem("currentuser",JSON.stringify(payload))
           // setError(null)
         } else {
           setError(message);
         }
       }
       if (selectedRole === 'user') {
+        console.log(currentUser)
         res = await axios.post('http://localhost:3000/user-api/user', currentUser)
-        // let { message, payload } = res.data;
+        let { message, payload } = res.data;
         console.log(message)
         if (message === 'user') {
           setCurrentUser({ ...currentUser, ...payload })
+           //save user to localstorage
+           localStorage.setItem("currentuser",JSON.stringify(payload))
         } else {
           setError(message);
         }

@@ -9,6 +9,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 
+
 function ArticleByID() {
 
   const { state } = useLocation()
@@ -18,6 +19,7 @@ function ArticleByID() {
   const navigate = useNavigate()
   const { getToken } = useAuth()
   const [currentArticle,setCurrentArticle]=useState(state)
+  const [commentStatus,setCommentStatus]=useState('')
   //console.log(state)
 
   //to enable edit of article
@@ -50,6 +52,19 @@ function ArticleByID() {
     }
 
 
+  }
+
+
+  //add comment by user
+  async function addComment(commentObj){
+    //add name of user to comment obj
+    commentObj.nameOfUser=currentUser.firstName;
+    console.log(commentObj)
+    //http put
+    let res=await axios.put(`http://localhost:3000/user-api/comment/${currentArticle.articleId}`,commentObj);
+    if(res.data.message==='comment added'){
+      setCommentStatus(res.data.message)
+    }
   }
 
 
@@ -143,6 +158,16 @@ function ArticleByID() {
               }
             </div>
           </div>
+          {/* comment form */}
+          <h6>{commentStatus}</h6>
+          {
+            currentUser.role==='user'&&<form onSubmit={handleSubmit(addComment)} >
+              <input type="text"  {...register("comment")} className="form-control mb-4" />
+              <button className="btn btn-success">
+                Add a comment
+              </button>
+            </form>
+          }
         </> :
           <form onSubmit={handleSubmit(onSave)}>
             <div className="mb-4">

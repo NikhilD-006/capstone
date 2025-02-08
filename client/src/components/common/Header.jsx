@@ -4,19 +4,27 @@ import logo from "../../assets/logo4.avif";
 import { useClerk, useUser } from '@clerk/clerk-react'
 import { userAuthorContextObj } from '../../contexts/UserAuthorContext'
 
-function Header() {
-  const { signOut } = useClerk()
-  const { isSignedIn, user, isLoaded } = useUser()
-  const { currentUser, setCurrentUser } = useContext(userAuthorContextObj)
-  const navigate = useNavigate();
+const Header = () => {
+  //const { userId } = useAuth();
+  const { signOut } = useClerk();
+  const { currentUser,setCurrentUser } = useContext(userAuthorContextObj);
+ // console.log(currentUser);
 
-
-  //function to signout
-  async function handleSignout() {
-    await signOut();
-    setCurrentUser(null)
-    navigate('/')
-  }
+ const navigate=useNavigate()
+  // Add these lines
+  const { isSignedIn, user, isLoaded } = useUser();
+  const handleSignOut = async () => {
+    console.log("signout called")
+    try {
+      await signOut();
+      // Clear local storage after successful sign out
+      setCurrentUser(null)
+      localStorage.clear();
+      navigate('/')
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
+  };
 
   return (
     <div>
@@ -27,34 +35,51 @@ function Header() {
           </Link>
         </div>
         <ul className="text-white d-flex justify-content-center  list-unstyled">
-
-          {
-            !isSignedIn ?
-              <>
-                <li>
-                  <Link to='' className=" link me-4 ">Home</Link>
-                </li>
-                <li>
-                  <Link to='signin' className=" link me-4 ">Signin</Link>
-                </li>
-                <li>
-                  <Link to='signup' className=" link me-4 ">Signup</Link>
-                </li>
-              </> :
-              <div className='user-button'>
-                <div style={{ position: 'relative' }}>
-                  <img src={user.imageUrl} width='40px' className='rounded-circle' alt="" />
-                  <p className='role' style={{ position: 'absolute', top: "0px", right: "-20px" }}>{currentUser.role}</p>
+          {!isSignedIn ? (
+            <>
+              <li>
+                <Link to="signin" className=" link me-4 ">
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link to="signup" className="link  me-4 ">
+                  Sign Up
+                </Link>
+              </li>
+            </>
+          ) : (
+            <div
+              className="d-flex justify-content-around"
+              style={{ width: "200px" }}
+            >
+              <div className="user-button">
+                <div style={{position:"relative"}}>
+                  <img
+                    src={user.imageUrl}
+                    width="40px"
+                    className="rounded-circle"
+                    alt=""
+                    
+                  />
+                  <p className="role" style={{position:"absolute", top:"0px",right:"-20px"}}>{currentUser.role}</p>
                 </div>
-                <p className='mb-0 user-name' >{user.firstName}</p>
-                <button className="btn btn-danger signout-btn" onClick={handleSignout}>Signout</button>
+                <p className="mb-0 user-name"> {user.firstName}</p>
+                {/* <div >
+                  {currentUser.role}
+                </div> */}
               </div>
-          }
 
+              {/* <UserButton /> */}
+              <button onClick={handleSignOut} className="signout-btn">
+                Signout
+              </button>
+            </div>
+          )}
         </ul>
       </nav>
     </div>
-  )
-}
+  );
+};
 
 export default Header
